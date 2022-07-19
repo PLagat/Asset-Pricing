@@ -1,0 +1,103 @@
+---
+title: "TAKEAWAY CAT2"
+author: "Patricia Lagat"
+date: "7/6/2022"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#QUESTION 1(a)
+#We prepared the data by first removing the first rows to remain with the table
+```{r}
+library(readxl)
+CATQ1_monthly <- read_excel("CATQ1_monthly.xlsx")
+View(CATQ1_monthly)
+myData0<-as.matrix(read_xlsx("CATQ1_monthly.xlsx"))
+myData <- myData0[,-1] #To remove the date column"
+head(myData)
+```
+#Cumulative returns
+```{r}
+Rapple<-myData[,2] #2nd column for Apple
+Rgoogle<-myData[,4] #4th column is for Google
+
+Rewp <- 0.5*Rapple + 0.5*Rgoogle #for the equally weighted portfolio
+Rewp
+
+
+cumuRewp<-rep(0,60) #We created an empty vector to hold cumulative return
+
+
+for(i in 1:60){cumuRewp[i] <- prod(Rewp[1:i])} #Loop through the 60 periods
+cumuRewp
+
+plot(1:60, cumuRewp, type= "l") #gives the plot of monthly returns
+```
+
+###Question 1(b)
+```{r}
+CAPM_Apple <- lm(CATQ1_monthly$Apple ~ CATQ1_monthly$Market, CATQ1_monthly)
+CAPM_Apple # Beta = 1.175
+
+CAPM_Ford <- lm(CATQ1_monthly$`Ford Motor` ~ CATQ1_monthly$Market, CATQ1_monthly)
+CAPM_Ford  #Beta =1.203
+
+CAPM_Google <- lm(CATQ1_monthly$Google ~ CATQ1_monthly$Market, CATQ1_monthly)
+CAPM_Google #Beta = 0.9023
+
+CAPM_Kellogg <- lm(CATQ1_monthly$Kellogg ~ CATQ1_monthly$Market, CATQ1_monthly)
+CAPM_Kellogg #Beta=0.5402
+
+CAPM_USsteel<- lm(CATQ1_monthly$`US Steel` ~ CATQ1_monthly$Market, CATQ1_monthly)
+CAPM_USsteel  #Beta = 2.4626
+
+CAPM_Walmart <- lm(CATQ1_monthly$Walmart ~ CATQ1_monthly$Market, CATQ1_monthly)
+CAPM_Walmart   #Beta= 0.3706
+```
+#aggressive stocks are for Apple,US steel
+#defensive stocks are Ford Motor,Google, Kellogg, Walmart
+
+###Question 1(c)
+#From CATQ3_annual dataset, we extracted the Rf for 2016 to 2020
+```{r}
+Rf <- mean(c(0.2,0.8,1.81,2.14,0.44)) #riskfree rate average
+Rf #1.078
+
+Rm <- mean(CATQ1_monthly$Market) #market return average
+Rm #1.198667
+
+ER_A <- Rf + 1.175*(Rm-Rf) #Apple expected return
+ER_A  #1.219783
+
+ER_FM <- Rf + 1.203*(Rm-Rf) #Ford Motor
+ER_FM  #1.223162
+
+ER_G <- Rf + 0.9023*(Rm-Rf) #Google
+ER_G  #1.186878
+
+ER_k <- Rf + 0.5402*(Rm-Rf) #Kellogg
+ER_k  #1.219783
+
+ER_US <- Rf + 2.4626*(Rm-Rf) #US Steel
+ER_US  #1.375154
+
+ER_W <- Rf + 0.3706*(Rm-Rf)  #Walmart return
+ER_W  #1.122719 
+```
+###QUESTION 2
+```{r}
+library(readxl)
+CATQ3_annual <- read_excel("D:/FAP/CATQ3_annual.xlsx")
+View(CATQ3_annual)
+
+Market_Excess <- CATQ3_annual$Market- CATQ3_annual$`Risk-Free`
+CAPM_HML <- lm(CATQ3_annual$HML ~ Market_Excess)
+summary(CAPM_HML)
+```
+#the intercept value is 0.047 which is statistically insignificant thus
+##We fail to reject the null at 99% confidence interval
+
+
